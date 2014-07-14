@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns="http://www.mulesoft.org/schema/mule/core" 
+<mule xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns="http://www.mulesoft.org/schema/mule/core" 
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:http="http://www.mulesoft.org/schema/mule/http" 
 	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.5.0" 
@@ -12,12 +12,22 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
-http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd">
 
-<context:property-placeholder location="${env.name}.properties"/>
 
     <flow name="dummy-projectFlow1" doc:name="dummy-projectFlow1">
-        <http:inbound-endpoint exchange-pattern="request-response" address="${init.url}" doc:name="HTTP"/>
-        <http:outbound-endpoint exchange-pattern="request-response" method="GET" address="${second.url}" doc:name="HTTP"/>
+        <http:inbound-endpoint exchange-pattern="request-response" address="http://localhost:8080/test" doc:name="HTTP"/>
+        <logger level="INFO" doc:name="Logger"/>
+        <mulexml:xml-to-object-transformer returnClass="domain.Merchant" doc:name="XML to Object">
+            <mulexml:alias name="name" class="domain.Name"/>
+            <mulexml:alias name="merchant" class="domain.Merchant"/>
+            <mulexml:alias name="address" class="domain.Address"/>   
+         </mulexml:xml-to-object-transformer>
+        <response>
+            <set-property propertyName="PILLLR_TRANSACTION" value="#[message.id]" doc:name="Property"/>
+        </response>
+        <component doc:name="Java" class="service.UUIDService"/>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
     </flow>
 </mule>
